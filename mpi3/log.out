@@ -1,0 +1,56 @@
+kinit: KDC can't fulfill requested option while renewing credentials
+20 24
+7 24
+13 24
+14 24
+12 24
+18 24
+15 24
+0 24
+5 24
+22 24
+17 24
+19 24
+23 24
+16 24
+21 24
+9 24
+10 24
+8 24
+2 24
+6 24
+11 24
+3 24
+1 24
+4 24
+
+------------------------------------------------------------
+Sender: LSF System <lsf@psana1305.pcdsn>
+Subject: Job 904126: <mpirun python shared_memory_test.py> in cluster <slac> Done
+
+Job <mpirun python shared_memory_test.py> was submitted from host <psanaphi110.pcdsn> by user <monarin> in cluster <slac> at Mon Apr 23 12:26:41 2018.
+Job was executed on host(s) <12*psana1305>, in queue <psdebugq>, as user <monarin> in cluster <slac> at Mon Apr 23 12:26:45 2018.
+                            <12*psana1214>
+</reg/neh/home/monarin> was used as the home directory.
+</reg/neh/home/monarin/divelite/mpi3> was used as the working directory.
+Started at Mon Apr 23 12:26:45 2018.
+Terminated at Mon Apr 23 12:26:54 2018.
+Results reported at Mon Apr 23 12:26:54 2018.
+Cannot open your job file: /reg/neh/home/monarin/.lsbatch/1524511601.904126
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   2.49 sec.
+    Max Memory :                                 1 MB
+    Average Memory :                             1.00 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              1
+    Max Threads :                                1
+    Run time :                                   15 sec.
+    Turnaround time :                            13 sec.
+
+The output (if any) is above this job summary.
+
