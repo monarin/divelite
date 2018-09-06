@@ -3,6 +3,7 @@ from threading import Thread
 from time import sleep
 
 q = Queue(2)
+print(q.empty())
 q.put(1)
 q.put(2)
 print(q.get())
