@@ -2,7 +2,7 @@ from multiprocessing import Pool
 import signal, os, time
 
 def f(x):
-    print(x)
+    print('hello',x)
     return x*2
 
 if __name__ == '__main__':
