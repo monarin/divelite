@@ -4,28 +4,43 @@
 #include <fcntl.h>
 #include <string.h>
 #include <vector>
+#include <time.h>
 
 #include "smdreader.h"
 
 using namespace std;
 
-int main() {
+int main(int argc, char** argv) {
     string xtc_file;
     vector<int> fds;
-    for (int i=0; i<3; i++) {
+    int nfiles = stoi(argv[1]);
+    for (int i=0; i<nfiles; i++) {
         stringstream ss;
         ss << setw(2) << setfill('0') << i;
         xtc_file = "/reg/d/psdm/xpp/xpptut15/scratch/mona/test/smalldata/data-"+ss.str()+".smd.xtc";
         int fd = open(xtc_file.c_str(), O_RDONLY);
         fds.push_back(fd);
-        cout << "read " << xtc_file << " " << fd << endl;
+    }
+    
+    time_t st, en;
+    double seconds;
+    time(&st);
+    
+    unsigned got_events = -1;
+    SmdReader smdr(fds);
+    
+    unsigned processed_events = 0;
+    while (got_events != 0) {
+        smdr.get(1);
+        got_events = smdr.got_events;
+        processed_events += got_events;
     }
 
-    SmdReader smdr(fds);
-    smdr.get(1);
+    time(&en);
+    seconds = difftime(st, en);
+    double rate = ((double)processed_events) / (seconds*1000000);
+    cout << "Total Elapsed(s): " << seconds << " Processed Events: " << processed_events << " Rate(MHz): " << rate << endl; 
 
-    //Buffer obj1(fd);
-    //obj1.print_got();
     return 0;
 }
 

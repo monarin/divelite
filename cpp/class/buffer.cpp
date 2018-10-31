@@ -12,24 +12,20 @@ using namespace std;
 Buffer::Buffer(int _fd) {
     fd = _fd;
     chunk = (char *)malloc(CHUNKSIZE);
-    cout << "create chunk " << &chunk << endl;
     got = read_with_retries(0, CHUNKSIZE);
     offset = 0;
     prev_offset = 0;
     nevents = 0;
     timestamp = 0;
     block_offset = 0;
-    block_size = 0;
 }
 
 Buffer::~Buffer() {
-    cout << "destroy chunk " << &chunk << endl;
     free(chunk);
 }
 
 void Buffer::reset_buffer() {
     nevents = 0;
-    block_size = 0;
     block_offset = offset;
 }
 
@@ -53,14 +49,15 @@ size_t Buffer::read_with_retries(size_t displacement, size_t count) {
     }
 }
 
-void Buffer::read_partial(size_t _block_offset, size_t _dgram_offset) {
+void Buffer::read_partial() {
     // Reads partial chunk
     // First copy what remains in the chunk to the beginning of
     // the chunk then re-read to fill in the chunk.
-    char* tmp_chunk = chunk;
-    size_t remaining = CHUNKSIZE - _block_offset;
+    // **Note that when got = 0, memcpy will complain overlap.
+    // **Thit is the last chunk - ignore for now.
+    size_t remaining = CHUNKSIZE - block_offset;
     if (remaining > 0) {
-        memcpy(tmp_chunk, tmp_chunk + _block_offset, remaining);
+        memcpy(chunk, chunk + block_offset, remaining);
     }
 
     size_t new_got = Buffer::read_with_retries(remaining, CHUNKSIZE - remaining);
@@ -69,5 +66,6 @@ void Buffer::read_partial(size_t _block_offset, size_t _dgram_offset) {
     } else {
         got = remaining + new_got;
     }
-    offset = _dgram_offset - _block_offset;
+    offset = prev_offset - block_offset;
+    block_offset = 0;
 }

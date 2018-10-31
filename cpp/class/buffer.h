@@ -20,6 +20,6 @@ public:
     void reset_buffer();
     void print_got();
     size_t read_with_retries(size_t displacement, size_t count);
-    void read_partial(size_t _block_offset, size_t _dgram_offset);
+    void read_partial();
 };
 

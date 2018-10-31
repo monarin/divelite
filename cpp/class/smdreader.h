@@ -6,7 +6,7 @@
 class SmdReader {
 public:
     std::vector<int> fds;
-    std::vector<std::unique_ptr<Buffer>> bufs;
+    std::vector<std::shared_ptr<Buffer>> bufs;
     int nfiles;
     unsigned got_events;
     unsigned long limit_ts;
