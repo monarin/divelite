@@ -37,9 +37,12 @@ int main(int argc, char** argv) {
     }
 
     time(&en);
-    seconds = difftime(st, en);
+    seconds = difftime(en, st);
     double rate = ((double)processed_events) / (seconds*1000000);
     cout << "Total Elapsed(s): " << seconds << " Processed Events: " << processed_events << " Rate(MHz): " << rate << endl; 
+    cout << "DeltaT get_init(s): " << smdr.dt_get_init << endl;
+    cout << "DeltaT get_dgram(s): " << smdr.dt_get_dgram << endl;
+    cout << "DeltaT reread(s):" << smdr.dt_reread << endl;
 
     return 0;
 }

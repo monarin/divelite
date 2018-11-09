@@ -2,8 +2,9 @@ from smdreader import DummyReader
 import os, glob, sys, time
 from psana import dgram
 
-xtc_files = glob.glob("/reg/d/psdm/xpp/xpptut15/scratch/mona/test/smalldata/data-*.smd.xtc")
+#xtc_files = glob.glob("/reg/d/psdm/xpp/xpptut15/scratch/mona/test/smalldata/data-*.smd.xtc")
 #xtc_files = glob.glob(".tmp/smalldata/data-*.smd.xtc")
+xtc_files = glob.glob("/ffb01/monarin/test/smalldata/data-*.smd.xtc")
 n_files = int(sys.argv[1])
 fds = [os.open(xtc_file, os.O_RDONLY) for xtc_file in xtc_files]
 
@@ -25,3 +26,13 @@ while got_events != 0:
 
 en = time.time()
 print("processed_events %d total elapsed %f s rate %f MHz"%(processed_events, en-st, processed_events/((en-st) * 1000000)))
+#print("DeltaT get_init(s): %f"%(smdr.dt_get_init))
+#print("DeltaT get_dgram(s): %f"%(smdr.dt_get_dgram))
+#print("DeltaT reread(s): %f"%(smdr.dt_reread))
+total = en-st
+print(total)
+print(smdr.dt_get_init)
+#print(smdr.dt_sub_reread)
+print(smdr.dt_reread)
+print(total - smdr.dt_get_init - smdr.dt_reread)
+
