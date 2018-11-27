@@ -187,6 +187,7 @@ cdef class DummyReader:
                             self.bufs[i].offset += payload
                             self.bufs[i].nevents += 1
                             self.bufs[i].timestamp = <unsigned long>d.seq.high << 32 | d.seq.low
+                            print(i, self.bufs[i].timestamp)
                         else:
                             needs_reread = 1 # not enough for the whole block, shift and reread all files
                             break

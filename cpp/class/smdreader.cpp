@@ -4,9 +4,12 @@
 #include <vector>
 #include <memory>
 #include <time.h>
+#include <thread>
+#include <mutex>
 
 #include "smdreader.h"
 using namespace std;
+static mutex barrier;
 
 SmdReader::SmdReader(vector<int> _fds) {
     fds = _fds;
@@ -24,31 +27,7 @@ SmdReader::~SmdReader() {
     bufs.clear();
 }
 
-/*
-size_t SmdReader::get_payload(shared_ptr<Buffer> *buf_ptr, Dgram** d_ptr_ptr) {
-    // get payload
-    shared_ptr<Buffer> buf = *buf_ptr;
-    Dgram* d = *d_ptr_ptr;
-    size_t payload;
-
-    payload = d->xtc.extent - xtc_size;
-    buf->offset += dgram_size;
-
-    return payload;
-}
-
-void SmdReader::get_dgram(shared_ptr<Buffer> *buf_ptr, Dgram** d_ptr_ptr, size_t payload) {
-    shared_ptr<Buffer> buf = *buf_ptr;
-    Dgram* d = *d_ptr_ptr;
-    buf->offset += payload;
-    buf->nevents += 1;
-    buf->timestamp = ((unsigned long)d->seq.high << 32) | d->seq.low;
-}*/
-
 int SmdReader::check_reread(shared_ptr<Buffer> *buf_ptr_ptr) {
-    //time_t st, en;
-
-    //time(&st);
     size_t payload = 0, remaining = 0;
     int needs_reread = 0;
     shared_ptr<Buffer> buf = *buf_ptr_ptr;
@@ -74,9 +53,16 @@ int SmdReader::check_reread(shared_ptr<Buffer> *buf_ptr_ptr) {
         needs_reread = 1; 
     }
 
-    //time(&en);
-    //dt_get_dgram += difftime(en, st);
     return needs_reread;
+}
+
+void SmdReader::init_buffer(int fd) {
+    shared_ptr<Buffer> buf(new Buffer{fd});
+    bufs.push_back(buf);
+}
+
+void SmdReader::reread(int buf_id) {
+    bufs[buf_id]->read_partial();
 }
 
 void SmdReader::get(unsigned nevents) {
@@ -86,9 +72,15 @@ void SmdReader::get(unsigned nevents) {
 
     if (bufs.empty() == true) {
         for (auto i=fds.begin(); i != fds.end(); ++i) {
-            shared_ptr<Buffer> buf(new Buffer{*i});
-            bufs.push_back(buf);
+            ths.push_back(thread(&SmdReader::init_buffer, this, *i));
         }
+
+        for (auto& t: ths) {
+            t.join();
+        }
+
+        ths.clear();
+
     }
 
     got_events = 0;
@@ -96,15 +88,13 @@ void SmdReader::get(unsigned nevents) {
         bufs[i]->reset_buffer();
     }
     
-    size_t payload=0;
-    size_t remaining=0;
     int winner = 0;
     int needs_reread = 0;
     int i_st = 0;
     unsigned long current_max_ts = 0;
     int current_winner = 0;
     unsigned current_got_events = 0;
-    
+     
     time(&en_init);
     dt_get_init += difftime(en_init, st_init);
 
@@ -112,26 +102,8 @@ void SmdReader::get(unsigned nevents) {
         for (int i=i_st; i<nfiles; ++i) {
             // read this file until hit limit timestamp
             while ( (bufs[i]->timestamp < limit_ts) && (bufs[i]->got > 0) ) {
-                remaining = bufs[i]->got - bufs[i]->offset;
-
-                if (dgram_size <= remaining) {
-                    // get payload
-                    Dgram* d = (Dgram*)(bufs[i]->chunk + bufs[i]->offset);
-                    payload = d->xtc.extent - xtc_size;
-                    bufs[i]->offset += dgram_size;
-                    remaining = bufs[i]->got - bufs[i]->offset;
-                    
-                    if (payload <= remaining) {
-                        // got dgram :)
-                        bufs[i]->offset += payload;
-                        bufs[i]->nevents += 1;
-                        bufs[i]->timestamp = ((unsigned long)d->seq.high << 32) | d->seq.low;
-                    } else {
-                        needs_reread = 1; // not enough for the whole block, shift and reread all files
-                        break;
-                    }
-                } else {
-                    needs_reread = 1; 
+                needs_reread = SmdReader::check_reread(&bufs[i]);
+                if (needs_reread == 1) {
                     break;
                 }
 
@@ -160,8 +132,16 @@ void SmdReader::get(unsigned nevents) {
         // shift and reread
         if (needs_reread == 1) {
             for (int j=0; j<bufs.size(); ++j) {
-                bufs[j]->read_partial();
+                //bufs[j]->read_partial();
+                ths.push_back(thread(&SmdReader::reread, this, j));
             }
+
+            for (auto& t: ths) {
+                t.join();
+            }
+
+            ths.clear();
+
             needs_reread = 0;
         } else {
             i_st = 0; // make sure that unless reread, always start with buffer 0
@@ -175,6 +155,7 @@ void SmdReader::get(unsigned nevents) {
         dt_reread += difftime(en_reread, st_reread);
         
     } // while ( (got_events
+    
 
 }
 

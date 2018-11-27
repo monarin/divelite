@@ -4,6 +4,12 @@
 {
     "distutils": {
         "depends": [],
+        "extra_compile_args": [
+            "-fopenmp"
+        ],
+        "extra_link_args": [
+            "-fopenmp"
+        ],
         "name": "smdreader",
         "sources": [
             "smdreader.pyx"
@@ -1666,6 +1672,16 @@ static CYTHON_INLINE PyObject *__pyx_capsule_create(void *p, const char *sig);
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value);
 
 /* CIntToPy.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_long(unsigned long value);
+
+/* Print.proto */
+static int __Pyx_Print(PyObject*, PyObject *, int);
+#if CYTHON_COMPILING_IN_PYPY || PY_MAJOR_VERSION >= 3
+static PyObject* __pyx_print = 0;
+static PyObject* __pyx_print_kwargs = 0;
+#endif
+
+/* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_char(char value);
 
 /* MemviewDtypeToObject.proto */
@@ -1693,6 +1709,9 @@ static CYTHON_INLINE unsigned int __Pyx_PyInt_As_unsigned_int(PyObject *);
 
 /* CIntFromPy.proto */
 static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *);
+
+/* PrintOne.proto */
+static int __Pyx_PrintOne(PyObject* stream, PyObject *o);
 
 /* CIntFromPy.proto */
 static CYTHON_INLINE char __Pyx_PyInt_As_char(PyObject *);
@@ -1837,11 +1856,13 @@ static const char __pyx_k_T[] = "T{";
   static const char __pyx_k__26[] = ":";
 static const char __pyx_k__27[] = "}";
 static const char __pyx_k__28[] = ",";
+static const char __pyx_k_end[] = "end";
 static const char __pyx_k_fds[] = "fds";
 static const char __pyx_k_new[] = "__new__";
 static const char __pyx_k_obj[] = "obj";
 static const char __pyx_k_base[] = "base";
 static const char __pyx_k_dict[] = "__dict__";
+static const char __pyx_k_file[] = "file";
 static const char __pyx_k_join[] = "join";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_mode[] = "mode";
@@ -1858,6 +1879,7 @@ static const char __pyx_k_class[] = "__class__";
 static const char __pyx_k_error[] = "error";
 static const char __pyx_k_flags[] = "flags";
 static const char __pyx_k_numpy[] = "numpy";
+static const char __pyx_k_print[] = "print";
 static const char __pyx_k_range[] = "range";
 static const char __pyx_k_shape[] = "shape";
 static const char __pyx_k_start[] = "start";
@@ -1964,9 +1986,11 @@ static PyObject *__pyx_kp_s_contiguous_and_indirect;
 static PyObject *__pyx_n_s_dict;
 static PyObject *__pyx_n_s_dtype_is_object;
 static PyObject *__pyx_n_s_encode;
+static PyObject *__pyx_n_s_end;
 static PyObject *__pyx_n_s_enumerate;
 static PyObject *__pyx_n_s_error;
 static PyObject *__pyx_n_s_fds;
+static PyObject *__pyx_n_s_file;
 static PyObject *__pyx_n_s_flags;
 static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_fortran;
@@ -1992,6 +2016,7 @@ static PyObject *__pyx_n_s_numpy;
 static PyObject *__pyx_n_s_obj;
 static PyObject *__pyx_n_s_pack;
 static PyObject *__pyx_n_s_pickle;
+static PyObject *__pyx_n_s_print;
 static PyObject *__pyx_n_s_pyx_PickleError;
 static PyObject *__pyx_n_s_pyx_checksum;
 static PyObject *__pyx_n_s_pyx_getbuffer;
@@ -3719,7 +3744,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
  *                             self.bufs[i].offset += payload
  *                             self.bufs[i].nevents += 1             # <<<<<<<<<<<<<<
  *                             self.bufs[i].timestamp = <unsigned long>d.seq.high << 32 | d.seq.low
- *                         else:
+ *                             print(i, self.bufs[i].timestamp)
  */
             __pyx_t_10 = __pyx_v_i;
             (__pyx_v_self->bufs[__pyx_t_10]).nevents = ((__pyx_v_self->bufs[__pyx_t_10]).nevents + 1);
@@ -3728,10 +3753,32 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
  *                             self.bufs[i].offset += payload
  *                             self.bufs[i].nevents += 1
  *                             self.bufs[i].timestamp = <unsigned long>d.seq.high << 32 | d.seq.low             # <<<<<<<<<<<<<<
+ *                             print(i, self.bufs[i].timestamp)
+ *                         else:
+ */
+            (__pyx_v_self->bufs[__pyx_v_i]).timestamp = ((((unsigned long)__pyx_v_d->seq.high) << 32) | __pyx_v_d->seq.low);
+
+            /* "smdreader.pyx":190
+ *                             self.bufs[i].nevents += 1
+ *                             self.bufs[i].timestamp = <unsigned long>d.seq.high << 32 | d.seq.low
+ *                             print(i, self.bufs[i].timestamp)             # <<<<<<<<<<<<<<
  *                         else:
  *                             needs_reread = 1 # not enough for the whole block, shift and reread all files
  */
-            (__pyx_v_self->bufs[__pyx_v_i]).timestamp = ((((unsigned long)__pyx_v_d->seq.high) << 32) | __pyx_v_d->seq.low);
+            __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 190, __pyx_L1_error)
+            __Pyx_GOTREF(__pyx_t_1);
+            __pyx_t_2 = __Pyx_PyInt_From_unsigned_long((__pyx_v_self->bufs[__pyx_v_i]).timestamp); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 190, __pyx_L1_error)
+            __Pyx_GOTREF(__pyx_t_2);
+            __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 190, __pyx_L1_error)
+            __Pyx_GOTREF(__pyx_t_3);
+            __Pyx_GIVEREF(__pyx_t_1);
+            PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
+            __Pyx_GIVEREF(__pyx_t_2);
+            PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
+            __pyx_t_1 = 0;
+            __pyx_t_2 = 0;
+            if (__Pyx_PrintOne(0, __pyx_t_3) < 0) __PYX_ERR(0, 190, __pyx_L1_error)
+            __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
             /* "smdreader.pyx":185
  *                         self.bufs[i].offset += self.dgram_size
@@ -3743,8 +3790,8 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
             goto __pyx_L15;
           }
 
-          /* "smdreader.pyx":191
- *                             self.bufs[i].timestamp = <unsigned long>d.seq.high << 32 | d.seq.low
+          /* "smdreader.pyx":192
+ *                             print(i, self.bufs[i].timestamp)
  *                         else:
  *                             needs_reread = 1 # not enough for the whole block, shift and reread all files             # <<<<<<<<<<<<<<
  *                             break
@@ -3753,7 +3800,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
           /*else*/ {
             __pyx_v_needs_reread = 1;
 
-            /* "smdreader.pyx":192
+            /* "smdreader.pyx":193
  *                         else:
  *                             needs_reread = 1 # not enough for the whole block, shift and reread all files
  *                             break             # <<<<<<<<<<<<<<
@@ -3774,7 +3821,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
           goto __pyx_L14;
         }
 
-        /* "smdreader.pyx":194
+        /* "smdreader.pyx":195
  *                             break
  *                     else:
  *                         needs_reread = 1             # <<<<<<<<<<<<<<
@@ -3784,7 +3831,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
         /*else*/ {
           __pyx_v_needs_reread = 1;
 
-          /* "smdreader.pyx":195
+          /* "smdreader.pyx":196
  *                     else:
  *                         needs_reread = 1
  *                         break             # <<<<<<<<<<<<<<
@@ -3797,7 +3844,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
       }
       __pyx_L11_break:;
 
-      /* "smdreader.pyx":197
+      /* "smdreader.pyx":198
  *                         break
  * 
  *                 if needs_reread:             # <<<<<<<<<<<<<<
@@ -3807,7 +3854,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
       __pyx_t_5 = (__pyx_v_needs_reread != 0);
       if (__pyx_t_5) {
 
-        /* "smdreader.pyx":198
+        /* "smdreader.pyx":199
  * 
  *                 if needs_reread:
  *                     i_st = i # start with the current buffer             # <<<<<<<<<<<<<<
@@ -3816,7 +3863,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
  */
         __pyx_v_i_st = __pyx_v_i;
 
-        /* "smdreader.pyx":199
+        /* "smdreader.pyx":200
  *                 if needs_reread:
  *                     i_st = i # start with the current buffer
  *                     break             # <<<<<<<<<<<<<<
@@ -3825,7 +3872,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
  */
         goto __pyx_L9_break;
 
-        /* "smdreader.pyx":197
+        /* "smdreader.pyx":198
  *                         break
  * 
  *                 if needs_reread:             # <<<<<<<<<<<<<<
@@ -3834,7 +3881,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
  */
       }
 
-      /* "smdreader.pyx":202
+      /* "smdreader.pyx":203
  * 
  *                 # remember previous offsets in case reread is needed
  *                 self.bufs[i].prev_offset = self.bufs[i].offset             # <<<<<<<<<<<<<<
@@ -3844,7 +3891,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
       __pyx_t_11 = (__pyx_v_self->bufs[__pyx_v_i]).offset;
       (__pyx_v_self->bufs[__pyx_v_i]).prev_offset = __pyx_t_11;
 
-      /* "smdreader.pyx":204
+      /* "smdreader.pyx":205
  *                 self.bufs[i].prev_offset = self.bufs[i].offset
  * 
  *                 if self.bufs[i].timestamp > current_max_ts:             # <<<<<<<<<<<<<<
@@ -3854,7 +3901,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
       __pyx_t_5 = (((__pyx_v_self->bufs[__pyx_v_i]).timestamp > __pyx_v_current_max_ts) != 0);
       if (__pyx_t_5) {
 
-        /* "smdreader.pyx":205
+        /* "smdreader.pyx":206
  * 
  *                 if self.bufs[i].timestamp > current_max_ts:
  *                     current_max_ts = self.bufs[i].timestamp             # <<<<<<<<<<<<<<
@@ -3864,7 +3911,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
         __pyx_t_12 = (__pyx_v_self->bufs[__pyx_v_i]).timestamp;
         __pyx_v_current_max_ts = __pyx_t_12;
 
-        /* "smdreader.pyx":206
+        /* "smdreader.pyx":207
  *                 if self.bufs[i].timestamp > current_max_ts:
  *                     current_max_ts = self.bufs[i].timestamp
  *                     current_winner = i             # <<<<<<<<<<<<<<
@@ -3873,7 +3920,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
  */
         __pyx_v_current_winner = __pyx_v_i;
 
-        /* "smdreader.pyx":204
+        /* "smdreader.pyx":205
  *                 self.bufs[i].prev_offset = self.bufs[i].offset
  * 
  *                 if self.bufs[i].timestamp > current_max_ts:             # <<<<<<<<<<<<<<
@@ -3882,7 +3929,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
  */
       }
 
-      /* "smdreader.pyx":208
+      /* "smdreader.pyx":209
  *                     current_winner = i
  * 
  *                 if self.bufs[i].nevents > current_got_events:             # <<<<<<<<<<<<<<
@@ -3892,7 +3939,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
       __pyx_t_5 = (((__pyx_v_self->bufs[__pyx_v_i]).nevents > __pyx_v_current_got_events) != 0);
       if (__pyx_t_5) {
 
-        /* "smdreader.pyx":209
+        /* "smdreader.pyx":210
  * 
  *                 if self.bufs[i].nevents > current_got_events:
  *                     current_got_events = self.bufs[i].nevents             # <<<<<<<<<<<<<<
@@ -3902,7 +3949,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
         __pyx_t_13 = (__pyx_v_self->bufs[__pyx_v_i]).nevents;
         __pyx_v_current_got_events = __pyx_t_13;
 
-        /* "smdreader.pyx":208
+        /* "smdreader.pyx":209
  *                     current_winner = i
  * 
  *                 if self.bufs[i].nevents > current_got_events:             # <<<<<<<<<<<<<<
@@ -3913,41 +3960,41 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
     }
     __pyx_L9_break:;
 
-    /* "smdreader.pyx":212
+    /* "smdreader.pyx":213
  * 
  * 
  *             st_reread = time.time()             # <<<<<<<<<<<<<<
  *             # shift and reread in parallel
  *             if needs_reread:
  */
-    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_time); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_time); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_time); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_time); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_2 = NULL;
-    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
-      __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_1))) {
+      __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_1);
       if (likely(__pyx_t_2)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
         __Pyx_INCREF(__pyx_t_2);
         __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_3, function);
+        __Pyx_DECREF_SET(__pyx_t_1, function);
       }
     }
     if (__pyx_t_2) {
-      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 212, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 213, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     } else {
-      __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 212, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 213, __pyx_L1_error)
     }
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 212, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 213, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_v_st_reread = __pyx_t_4;
 
-    /* "smdreader.pyx":214
+    /* "smdreader.pyx":215
  *             st_reread = time.time()
  *             # shift and reread in parallel
  *             if needs_reread:             # <<<<<<<<<<<<<<
@@ -3957,41 +4004,41 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
     __pyx_t_5 = (__pyx_v_needs_reread != 0);
     if (__pyx_t_5) {
 
-      /* "smdreader.pyx":216
+      /* "smdreader.pyx":217
  *             if needs_reread:
  *                 #self._reread()
  *                 st_sub_reread = time.time()             # <<<<<<<<<<<<<<
  *                 for idx in prange(self.nfiles, nogil=True):
  *                     self._read_partial(idx)
  */
-      __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_time); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 216, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_time); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 216, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_time); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_time); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 217, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_3 = NULL;
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __pyx_t_1 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
-        __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
-        if (likely(__pyx_t_3)) {
+        __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_2);
+        if (likely(__pyx_t_1)) {
           PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-          __Pyx_INCREF(__pyx_t_3);
+          __Pyx_INCREF(__pyx_t_1);
           __Pyx_INCREF(function);
           __Pyx_DECREF_SET(__pyx_t_2, function);
         }
       }
-      if (__pyx_t_3) {
-        __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 216, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      if (__pyx_t_1) {
+        __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 217, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       } else {
-        __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 216, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 217, __pyx_L1_error)
       }
-      __Pyx_GOTREF(__pyx_t_1);
+      __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 216, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 217, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_v_st_sub_reread = __pyx_t_4;
 
-      /* "smdreader.pyx":217
+      /* "smdreader.pyx":218
  *                 #self._reread()
  *                 st_sub_reread = time.time()
  *                 for idx in prange(self.nfiles, nogil=True):             # <<<<<<<<<<<<<<
@@ -4028,7 +4075,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
                             {
                                 __pyx_v_idx = (int)(0 + 1 * __pyx_t_8);
 
-                                /* "smdreader.pyx":218
+                                /* "smdreader.pyx":219
  *                 st_sub_reread = time.time()
  *                 for idx in prange(self.nfiles, nogil=True):
  *                     self._read_partial(idx)             # <<<<<<<<<<<<<<
@@ -4049,7 +4096,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
             #endif
           }
 
-          /* "smdreader.pyx":217
+          /* "smdreader.pyx":218
  *                 #self._reread()
  *                 st_sub_reread = time.time()
  *                 for idx in prange(self.nfiles, nogil=True):             # <<<<<<<<<<<<<<
@@ -4068,41 +4115,41 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
           }
       }
 
-      /* "smdreader.pyx":219
+      /* "smdreader.pyx":220
  *                 for idx in prange(self.nfiles, nogil=True):
  *                     self._read_partial(idx)
  *                 en_sub_reread = time.time()             # <<<<<<<<<<<<<<
  *                 self.dt_sub_reread += en_sub_reread - st_sub_reread
  *                 needs_reread = 0
  */
-      __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_time); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 219, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_time); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_time); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 219, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_time); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_t_2 = NULL;
-      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
-        __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
+      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_1))) {
+        __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_1);
         if (likely(__pyx_t_2)) {
-          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
           __Pyx_INCREF(__pyx_t_2);
           __Pyx_INCREF(function);
-          __Pyx_DECREF_SET(__pyx_t_3, function);
+          __Pyx_DECREF_SET(__pyx_t_1, function);
         }
       }
       if (__pyx_t_2) {
-        __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 220, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       } else {
-        __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 220, __pyx_L1_error)
       }
-      __Pyx_GOTREF(__pyx_t_1);
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 219, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 220, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_v_en_sub_reread = __pyx_t_4;
 
-      /* "smdreader.pyx":220
+      /* "smdreader.pyx":221
  *                     self._read_partial(idx)
  *                 en_sub_reread = time.time()
  *                 self.dt_sub_reread += en_sub_reread - st_sub_reread             # <<<<<<<<<<<<<<
@@ -4111,7 +4158,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
  */
       __pyx_v_self->dt_sub_reread = (__pyx_v_self->dt_sub_reread + (__pyx_v_en_sub_reread - __pyx_v_st_sub_reread));
 
-      /* "smdreader.pyx":221
+      /* "smdreader.pyx":222
  *                 en_sub_reread = time.time()
  *                 self.dt_sub_reread += en_sub_reread - st_sub_reread
  *                 needs_reread = 0             # <<<<<<<<<<<<<<
@@ -4120,7 +4167,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
  */
       __pyx_v_needs_reread = 0;
 
-      /* "smdreader.pyx":214
+      /* "smdreader.pyx":215
  *             st_reread = time.time()
  *             # shift and reread in parallel
  *             if needs_reread:             # <<<<<<<<<<<<<<
@@ -4130,7 +4177,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
       goto __pyx_L19;
     }
 
-    /* "smdreader.pyx":223
+    /* "smdreader.pyx":224
  *                 needs_reread = 0
  *             else:
  *                 i_st = 0 # make sure that unless reread, always start with buffer 0             # <<<<<<<<<<<<<<
@@ -4140,7 +4187,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
     /*else*/ {
       __pyx_v_i_st = 0;
 
-      /* "smdreader.pyx":224
+      /* "smdreader.pyx":225
  *             else:
  *                 i_st = 0 # make sure that unless reread, always start with buffer 0
  *                 winner = current_winner             # <<<<<<<<<<<<<<
@@ -4149,7 +4196,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
  */
       __pyx_v_winner = __pyx_v_current_winner;
 
-      /* "smdreader.pyx":225
+      /* "smdreader.pyx":226
  *                 i_st = 0 # make sure that unless reread, always start with buffer 0
  *                 winner = current_winner
  *                 self.limit_ts = current_max_ts + 1             # <<<<<<<<<<<<<<
@@ -4158,7 +4205,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
  */
       __pyx_v_self->limit_ts = (__pyx_v_current_max_ts + 1);
 
-      /* "smdreader.pyx":226
+      /* "smdreader.pyx":227
  *                 winner = current_winner
  *                 self.limit_ts = current_max_ts + 1
  *                 self.got_events = current_got_events             # <<<<<<<<<<<<<<
@@ -4167,7 +4214,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
  */
       __pyx_v_self->got_events = __pyx_v_current_got_events;
 
-      /* "smdreader.pyx":227
+      /* "smdreader.pyx":228
  *                 self.limit_ts = current_max_ts + 1
  *                 self.got_events = current_got_events
  *                 current_got_events = 0             # <<<<<<<<<<<<<<
@@ -4178,41 +4225,41 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
     }
     __pyx_L19:;
 
-    /* "smdreader.pyx":228
+    /* "smdreader.pyx":229
  *                 self.got_events = current_got_events
  *                 current_got_events = 0
  *             en_reread = time.time()             # <<<<<<<<<<<<<<
  *             self.dt_reread += en_reread - st_reread
  * 
  */
-    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_time); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 228, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_time); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 228, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_time); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 229, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_time); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 229, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = NULL;
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_1 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
-      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
-      if (likely(__pyx_t_3)) {
+      __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_2);
+      if (likely(__pyx_t_1)) {
         PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-        __Pyx_INCREF(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_1);
         __Pyx_INCREF(function);
         __Pyx_DECREF_SET(__pyx_t_2, function);
       }
     }
-    if (__pyx_t_3) {
-      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (__pyx_t_1) {
+      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 229, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     } else {
-      __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 229, __pyx_L1_error)
     }
-    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 228, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 229, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_v_en_reread = __pyx_t_4;
 
-    /* "smdreader.pyx":229
+    /* "smdreader.pyx":230
  *                 current_got_events = 0
  *             en_reread = time.time()
  *             self.dt_reread += en_reread - st_reread             # <<<<<<<<<<<<<<
@@ -4245,7 +4292,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_4get(struct __pyx_obj_9smdrea
   return __pyx_r;
 }
 
-/* "smdreader.pyx":231
+/* "smdreader.pyx":232
  *             self.dt_reread += en_reread - st_reread
  * 
  *     def view(self, int buf_id):             # <<<<<<<<<<<<<<
@@ -4261,7 +4308,7 @@ static PyObject *__pyx_pw_9smdreader_11DummyReader_7view(PyObject *__pyx_v_self,
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("view (wrapper)", 0);
   assert(__pyx_arg_buf_id); {
-    __pyx_v_buf_id = __Pyx_PyInt_As_int(__pyx_arg_buf_id); if (unlikely((__pyx_v_buf_id == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 231, __pyx_L3_error)
+    __pyx_v_buf_id = __Pyx_PyInt_As_int(__pyx_arg_buf_id); if (unlikely((__pyx_v_buf_id == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 232, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4289,7 +4336,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_6view(struct __pyx_obj_9smdre
   __Pyx_memviewslice __pyx_t_6 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("view", 0);
 
-  /* "smdreader.pyx":232
+  /* "smdreader.pyx":233
  * 
  *     def view(self, int buf_id):
  *         cdef size_t block_size = self.bufs[buf_id].offset - self.bufs[buf_id].block_offset             # <<<<<<<<<<<<<<
@@ -4298,7 +4345,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_6view(struct __pyx_obj_9smdre
  */
   __pyx_v_block_size = ((__pyx_v_self->bufs[__pyx_v_buf_id]).offset - (__pyx_v_self->bufs[__pyx_v_buf_id]).block_offset);
 
-  /* "smdreader.pyx":233
+  /* "smdreader.pyx":234
  *     def view(self, int buf_id):
  *         cdef size_t block_size = self.bufs[buf_id].offset - self.bufs[buf_id].block_offset
  *         assert buf_id < self.nfiles             # <<<<<<<<<<<<<<
@@ -4309,12 +4356,12 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_6view(struct __pyx_obj_9smdre
   if (unlikely(!Py_OptimizeFlag)) {
     if (unlikely(!((__pyx_v_buf_id < __pyx_v_self->nfiles) != 0))) {
       PyErr_SetNone(PyExc_AssertionError);
-      __PYX_ERR(0, 233, __pyx_L1_error)
+      __PYX_ERR(0, 234, __pyx_L1_error)
     }
   }
   #endif
 
-  /* "smdreader.pyx":234
+  /* "smdreader.pyx":235
  *         cdef size_t block_size = self.bufs[buf_id].offset - self.bufs[buf_id].block_offset
  *         assert buf_id < self.nfiles
  *         if self.bufs[buf_id].nevents == 0:             # <<<<<<<<<<<<<<
@@ -4324,7 +4371,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_6view(struct __pyx_obj_9smdre
   __pyx_t_1 = (((__pyx_v_self->bufs[__pyx_v_buf_id]).nevents == 0) != 0);
   if (__pyx_t_1) {
 
-    /* "smdreader.pyx":235
+    /* "smdreader.pyx":236
  *         assert buf_id < self.nfiles
  *         if self.bufs[buf_id].nevents == 0:
  *             return 0             # <<<<<<<<<<<<<<
@@ -4336,7 +4383,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_6view(struct __pyx_obj_9smdre
     __pyx_r = __pyx_int_0;
     goto __pyx_L0;
 
-    /* "smdreader.pyx":234
+    /* "smdreader.pyx":235
  *         cdef size_t block_size = self.bufs[buf_id].offset - self.bufs[buf_id].block_offset
  *         assert buf_id < self.nfiles
  *         if self.bufs[buf_id].nevents == 0:             # <<<<<<<<<<<<<<
@@ -4345,7 +4392,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_6view(struct __pyx_obj_9smdre
  */
   }
 
-  /* "smdreader.pyx":236
+  /* "smdreader.pyx":237
  *         if self.bufs[buf_id].nevents == 0:
  *             return 0
  *         cdef char [:] view = <char [:block_size]> (self.bufs[buf_id].chunk + self.bufs[buf_id].block_offset)             # <<<<<<<<<<<<<<
@@ -4355,25 +4402,25 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_6view(struct __pyx_obj_9smdre
   __pyx_t_2 = ((__pyx_v_self->bufs[__pyx_v_buf_id]).chunk + (__pyx_v_self->bufs[__pyx_v_buf_id]).block_offset);
   if (!__pyx_t_2) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 236, __pyx_L1_error)
+    __PYX_ERR(0, 237, __pyx_L1_error)
   }
   __pyx_t_5 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_char);
   __pyx_t_4 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_block_size));
-  if (unlikely(!__pyx_t_5 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_5))) __PYX_ERR(0, 236, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_5))) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_3 = __pyx_array_new(__pyx_t_4, sizeof(char), PyBytes_AS_STRING(__pyx_t_5), (char *) "c", (char *) __pyx_t_2);
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 236, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_ds_char(((PyObject *)__pyx_t_3), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 236, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_ds_char(((PyObject *)__pyx_t_3), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_3)); __pyx_t_3 = 0;
   __pyx_v_view = __pyx_t_6;
   __pyx_t_6.memview = NULL;
   __pyx_t_6.data = NULL;
 
-  /* "smdreader.pyx":237
+  /* "smdreader.pyx":238
  *             return 0
  *         cdef char [:] view = <char [:block_size]> (self.bufs[buf_id].chunk + self.bufs[buf_id].block_offset)
  *         return view             # <<<<<<<<<<<<<<
@@ -4381,13 +4428,13 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_6view(struct __pyx_obj_9smdre
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_5 = __pyx_memoryview_fromslice(__pyx_v_view, 1, (PyObject *(*)(char *)) __pyx_memview_get_char, (int (*)(char *, PyObject *)) __pyx_memview_set_char, 0);; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 237, __pyx_L1_error)
+  __pyx_t_5 = __pyx_memoryview_fromslice(__pyx_v_view, 1, (PyObject *(*)(char *)) __pyx_memview_get_char, (int (*)(char *, PyObject *)) __pyx_memview_set_char, 0);; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 238, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_r = __pyx_t_5;
   __pyx_t_5 = 0;
   goto __pyx_L0;
 
-  /* "smdreader.pyx":231
+  /* "smdreader.pyx":232
  *             self.dt_reread += en_reread - st_reread
  * 
  *     def view(self, int buf_id):             # <<<<<<<<<<<<<<
@@ -4410,7 +4457,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_6view(struct __pyx_obj_9smdre
   return __pyx_r;
 }
 
-/* "smdreader.pyx":240
+/* "smdreader.pyx":241
  * 
  *     @property
  *     def got_events(self):             # <<<<<<<<<<<<<<
@@ -4437,7 +4484,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_10got_events___get__(struct _
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "smdreader.pyx":241
+  /* "smdreader.pyx":242
  *     @property
  *     def got_events(self):
  *         return self.got_events             # <<<<<<<<<<<<<<
@@ -4445,13 +4492,13 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_10got_events___get__(struct _
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->got_events); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 241, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->got_events); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 242, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "smdreader.pyx":240
+  /* "smdreader.pyx":241
  * 
  *     @property
  *     def got_events(self):             # <<<<<<<<<<<<<<
@@ -4470,7 +4517,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_10got_events___get__(struct _
   return __pyx_r;
 }
 
-/* "smdreader.pyx":244
+/* "smdreader.pyx":245
  * 
  *     @property
  *     def dt_get_init(self):             # <<<<<<<<<<<<<<
@@ -4497,7 +4544,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_11dt_get_init___get__(struct 
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "smdreader.pyx":245
+  /* "smdreader.pyx":246
  *     @property
  *     def dt_get_init(self):
  *         return self.dt_get_init             # <<<<<<<<<<<<<<
@@ -4505,13 +4552,13 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_11dt_get_init___get__(struct 
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->dt_get_init); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->dt_get_init); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "smdreader.pyx":244
+  /* "smdreader.pyx":245
  * 
  *     @property
  *     def dt_get_init(self):             # <<<<<<<<<<<<<<
@@ -4530,7 +4577,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_11dt_get_init___get__(struct 
   return __pyx_r;
 }
 
-/* "smdreader.pyx":248
+/* "smdreader.pyx":249
  * 
  *     @property
  *     def dt_get_dgram(self):             # <<<<<<<<<<<<<<
@@ -4557,7 +4604,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_12dt_get_dgram___get__(struct
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "smdreader.pyx":249
+  /* "smdreader.pyx":250
  *     @property
  *     def dt_get_dgram(self):
  *         return self.dt_get_dgram             # <<<<<<<<<<<<<<
@@ -4565,13 +4612,13 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_12dt_get_dgram___get__(struct
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->dt_get_dgram); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 249, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->dt_get_dgram); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 250, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "smdreader.pyx":248
+  /* "smdreader.pyx":249
  * 
  *     @property
  *     def dt_get_dgram(self):             # <<<<<<<<<<<<<<
@@ -4590,7 +4637,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_12dt_get_dgram___get__(struct
   return __pyx_r;
 }
 
-/* "smdreader.pyx":252
+/* "smdreader.pyx":253
  * 
  *     @property
  *     def dt_reread(self):             # <<<<<<<<<<<<<<
@@ -4617,7 +4664,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_9dt_reread___get__(struct __p
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "smdreader.pyx":253
+  /* "smdreader.pyx":254
  *     @property
  *     def dt_reread(self):
  *         return self.dt_reread             # <<<<<<<<<<<<<<
@@ -4625,13 +4672,13 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_9dt_reread___get__(struct __p
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->dt_reread); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 253, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->dt_reread); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 254, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "smdreader.pyx":252
+  /* "smdreader.pyx":253
  * 
  *     @property
  *     def dt_reread(self):             # <<<<<<<<<<<<<<
@@ -4650,7 +4697,7 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_9dt_reread___get__(struct __p
   return __pyx_r;
 }
 
-/* "smdreader.pyx":256
+/* "smdreader.pyx":257
  * 
  *     @property
  *     def dt_sub_reread(self):             # <<<<<<<<<<<<<<
@@ -4676,19 +4723,19 @@ static PyObject *__pyx_pf_9smdreader_11DummyReader_13dt_sub_reread___get__(struc
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "smdreader.pyx":257
+  /* "smdreader.pyx":258
  *     @property
  *     def dt_sub_reread(self):
  *         return self.dt_sub_reread             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->dt_sub_reread); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 257, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->dt_sub_reread); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 258, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "smdreader.pyx":256
+  /* "smdreader.pyx":257
  * 
  *     @property
  *     def dt_sub_reread(self):             # <<<<<<<<<<<<<<
@@ -18950,9 +18997,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_dict, __pyx_k_dict, sizeof(__pyx_k_dict), 0, 0, 1, 1},
   {&__pyx_n_s_dtype_is_object, __pyx_k_dtype_is_object, sizeof(__pyx_k_dtype_is_object), 0, 0, 1, 1},
   {&__pyx_n_s_encode, __pyx_k_encode, sizeof(__pyx_k_encode), 0, 0, 1, 1},
+  {&__pyx_n_s_end, __pyx_k_end, sizeof(__pyx_k_end), 0, 0, 1, 1},
   {&__pyx_n_s_enumerate, __pyx_k_enumerate, sizeof(__pyx_k_enumerate), 0, 0, 1, 1},
   {&__pyx_n_s_error, __pyx_k_error, sizeof(__pyx_k_error), 0, 0, 1, 1},
   {&__pyx_n_s_fds, __pyx_k_fds, sizeof(__pyx_k_fds), 0, 0, 1, 1},
+  {&__pyx_n_s_file, __pyx_k_file, sizeof(__pyx_k_file), 0, 0, 1, 1},
   {&__pyx_n_s_flags, __pyx_k_flags, sizeof(__pyx_k_flags), 0, 0, 1, 1},
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 0, 1, 1},
@@ -18978,6 +19027,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_obj, __pyx_k_obj, sizeof(__pyx_k_obj), 0, 0, 1, 1},
   {&__pyx_n_s_pack, __pyx_k_pack, sizeof(__pyx_k_pack), 0, 0, 1, 1},
   {&__pyx_n_s_pickle, __pyx_k_pickle, sizeof(__pyx_k_pickle), 0, 0, 1, 1},
+  {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_checksum, __pyx_k_pyx_checksum, sizeof(__pyx_k_pyx_checksum), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_getbuffer, __pyx_k_pyx_getbuffer, sizeof(__pyx_k_pyx_getbuffer), 0, 0, 1, 1},
@@ -22090,6 +22140,143 @@ __pyx_capsule_create(void *p, CYTHON_UNUSED const char *sig)
 }
 
 /* CIntToPy */
+        static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_long(unsigned long value) {
+    const unsigned long neg_one = (unsigned long) -1, const_zero = (unsigned long) 0;
+    const int is_unsigned = neg_one > const_zero;
+    if (is_unsigned) {
+        if (sizeof(unsigned long) < sizeof(long)) {
+            return PyInt_FromLong((long) value);
+        } else if (sizeof(unsigned long) <= sizeof(unsigned long)) {
+            return PyLong_FromUnsignedLong((unsigned long) value);
+#ifdef HAVE_LONG_LONG
+        } else if (sizeof(unsigned long) <= sizeof(unsigned PY_LONG_LONG)) {
+            return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG) value);
+#endif
+        }
+    } else {
+        if (sizeof(unsigned long) <= sizeof(long)) {
+            return PyInt_FromLong((long) value);
+#ifdef HAVE_LONG_LONG
+        } else if (sizeof(unsigned long) <= sizeof(PY_LONG_LONG)) {
+            return PyLong_FromLongLong((PY_LONG_LONG) value);
+#endif
+        }
+    }
+    {
+        int one = 1; int little = (int)*(unsigned char *)&one;
+        unsigned char *bytes = (unsigned char *)&value;
+        return _PyLong_FromByteArray(bytes, sizeof(unsigned long),
+                                     little, !is_unsigned);
+    }
+}
+
+/* Print */
+        #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION < 3
+static PyObject *__Pyx_GetStdout(void) {
+    PyObject *f = PySys_GetObject((char *)"stdout");
+    if (!f) {
+        PyErr_SetString(PyExc_RuntimeError, "lost sys.stdout");
+    }
+    return f;
+}
+static int __Pyx_Print(PyObject* f, PyObject *arg_tuple, int newline) {
+    int i;
+    if (!f) {
+        if (!(f = __Pyx_GetStdout()))
+            return -1;
+    }
+    Py_INCREF(f);
+    for (i=0; i < PyTuple_GET_SIZE(arg_tuple); i++) {
+        PyObject* v;
+        if (PyFile_SoftSpace(f, 1)) {
+            if (PyFile_WriteString(" ", f) < 0)
+                goto error;
+        }
+        v = PyTuple_GET_ITEM(arg_tuple, i);
+        if (PyFile_WriteObject(v, f, Py_PRINT_RAW) < 0)
+            goto error;
+        if (PyString_Check(v)) {
+            char *s = PyString_AsString(v);
+            Py_ssize_t len = PyString_Size(v);
+            if (len > 0) {
+                switch (s[len-1]) {
+                    case ' ': break;
+                    case '\f': case '\r': case '\n': case '\t': case '\v':
+                        PyFile_SoftSpace(f, 0);
+                        break;
+                    default:  break;
+                }
+            }
+        }
+    }
+    if (newline) {
+        if (PyFile_WriteString("\n", f) < 0)
+            goto error;
+        PyFile_SoftSpace(f, 0);
+    }
+    Py_DECREF(f);
+    return 0;
+error:
+    Py_DECREF(f);
+    return -1;
+}
+#else
+static int __Pyx_Print(PyObject* stream, PyObject *arg_tuple, int newline) {
+    PyObject* kwargs = 0;
+    PyObject* result = 0;
+    PyObject* end_string;
+    if (unlikely(!__pyx_print)) {
+        __pyx_print = PyObject_GetAttr(__pyx_b, __pyx_n_s_print);
+        if (!__pyx_print)
+            return -1;
+    }
+    if (stream) {
+        kwargs = PyDict_New();
+        if (unlikely(!kwargs))
+            return -1;
+        if (unlikely(PyDict_SetItem(kwargs, __pyx_n_s_file, stream) < 0))
+            goto bad;
+        if (!newline) {
+            end_string = PyUnicode_FromStringAndSize(" ", 1);
+            if (unlikely(!end_string))
+                goto bad;
+            if (PyDict_SetItem(kwargs, __pyx_n_s_end, end_string) < 0) {
+                Py_DECREF(end_string);
+                goto bad;
+            }
+            Py_DECREF(end_string);
+        }
+    } else if (!newline) {
+        if (unlikely(!__pyx_print_kwargs)) {
+            __pyx_print_kwargs = PyDict_New();
+            if (unlikely(!__pyx_print_kwargs))
+                return -1;
+            end_string = PyUnicode_FromStringAndSize(" ", 1);
+            if (unlikely(!end_string))
+                return -1;
+            if (PyDict_SetItem(__pyx_print_kwargs, __pyx_n_s_end, end_string) < 0) {
+                Py_DECREF(end_string);
+                return -1;
+            }
+            Py_DECREF(end_string);
+        }
+        kwargs = __pyx_print_kwargs;
+    }
+    result = PyObject_Call(__pyx_print, arg_tuple, kwargs);
+    if (unlikely(kwargs) && (kwargs != __pyx_print_kwargs))
+        Py_DECREF(kwargs);
+    if (!result)
+        return -1;
+    Py_DECREF(result);
+    return 0;
+bad:
+    if (kwargs != __pyx_print_kwargs)
+        Py_XDECREF(kwargs);
+    return -1;
+}
+#endif
+
+/* CIntToPy */
         static CYTHON_INLINE PyObject* __Pyx_PyInt_From_char(char value) {
     const char neg_one = (char) -1, const_zero = (char) 0;
     const int is_unsigned = neg_one > const_zero;
@@ -22651,6 +22838,43 @@ raise_neg_overflow:
         "can't convert negative value to int");
     return (int) -1;
 }
+
+/* PrintOne */
+        #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION < 3
+static int __Pyx_PrintOne(PyObject* f, PyObject *o) {
+    if (!f) {
+        if (!(f = __Pyx_GetStdout()))
+            return -1;
+    }
+    Py_INCREF(f);
+    if (PyFile_SoftSpace(f, 0)) {
+        if (PyFile_WriteString(" ", f) < 0)
+            goto error;
+    }
+    if (PyFile_WriteObject(o, f, Py_PRINT_RAW) < 0)
+        goto error;
+    if (PyFile_WriteString("\n", f) < 0)
+        goto error;
+    Py_DECREF(f);
+    return 0;
+error:
+    Py_DECREF(f);
+    return -1;
+    /* the line below is just to avoid C compiler
+     * warnings about unused functions */
+    return __Pyx_Print(f, NULL, 0);
+}
+#else
+static int __Pyx_PrintOne(PyObject* stream, PyObject *o) {
+    int res;
+    PyObject* arg_tuple = PyTuple_Pack(1, o);
+    if (unlikely(!arg_tuple))
+        return -1;
+    res = __Pyx_Print(stream, arg_tuple, 1);
+    Py_DECREF(arg_tuple);
+    return res;
+}
+#endif
 
 /* CIntFromPy */
         static CYTHON_INLINE char __Pyx_PyInt_As_char(PyObject *x) {

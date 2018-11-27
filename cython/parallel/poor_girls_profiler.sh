@@ -3,7 +3,8 @@
 pid=${1}
 log="${pid}.log"
 
-fds=($(grep 'open("/reg/d/psdm/xpp' $log | awk '{print $6}'))
+#fds=($(grep 'open("/reg/d/psdm/xpp' $log | awk '{print $6}'))
+fds=($(grep 'open("/ffb01/monarin/hsd/smalldata' $log | awk '{print $6}'))
 
 for i in "${fds[@]}"
 do

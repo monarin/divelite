@@ -1,10 +1,11 @@
 from smdreader import DummyReader
+#from psana.smdreader import SmdReader as DummyReader
 import os, glob, sys, time
 from psana import dgram
 
-#xtc_files = glob.glob("/reg/d/psdm/xpp/xpptut15/scratch/mona/test/smalldata/data-*.smd.xtc")
+xtc_files = glob.glob("/reg/d/psdm/xpp/xpptut15/scratch/mona/test/smalldata/data-*.smd.xtc")
 #xtc_files = glob.glob(".tmp/smalldata/data-*.smd.xtc")
-xtc_files = glob.glob("/ffb01/monarin/test/smalldata/data-*.smd.xtc")
+#xtc_files = glob.glob("/ffb01/monarin/hsd/smalldata/data-*.smd.xtc")
 n_files = int(sys.argv[1])
 fds = [os.open(xtc_file, os.O_RDONLY) for xtc_file in xtc_files]
 
@@ -23,6 +24,7 @@ while got_events != 0:
     processed_events += got_events
     for i in range(n_files):
         view = smdr.view(i)
+    if processed_events >= 1000: break
 
 en = time.time()
 print("processed_events %d total elapsed %f s rate %f MHz"%(processed_events, en-st, processed_events/((en-st) * 1000000)))

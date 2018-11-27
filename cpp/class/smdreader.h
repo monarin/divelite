@@ -1,5 +1,6 @@
 #include <vector>
 #include <memory>
+#include <thread>
 
 #include "buffer.h"
 
@@ -35,8 +36,10 @@ public:
     SmdReader(std::vector<int> _fds);
     ~SmdReader();
     int check_reread(std::shared_ptr<Buffer> *buf_ptr_ptr);
-    //size_t get_payload(std::shared_ptr<Buffer> *buf_ptr, Dgram** d_ptr_ptr);
-    //void get_dgram(std::shared_ptr<Buffer> *buf_ptr, Dgram** d_ptr_ptr, size_t payload);
     void get(unsigned nevents);
 
+private:
+    std::vector<std::thread> ths;
+    void init_buffer(int fd);
+    void reread(int buf_id);
 };

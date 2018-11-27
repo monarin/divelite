@@ -17,9 +17,11 @@ int main(int argc, char** argv) {
     for (int i=0; i<nfiles; i++) {
         stringstream ss;
         ss << setw(2) << setfill('0') << i;
-        xtc_file = "/reg/d/psdm/xpp/xpptut15/scratch/mona/test/smalldata/data-"+ss.str()+".smd.xtc";
+        //xtc_file = "/reg/d/psdm/xpp/xpptut15/scratch/mona/test/smalldata/data-"+ss.str()+".smd.xtc";
+        xtc_file = "/ffb01/monarin/hsd/smalldata/data-"+ss.str()+".smd.xtc";
         int fd = open(xtc_file.c_str(), O_RDONLY);
         fds.push_back(fd);
+        cout << xtc_file << " "  << fd << endl;
     }
     
     time_t st, en;
