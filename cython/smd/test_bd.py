@@ -11,13 +11,14 @@ def filter_fn(evt):
 
 xtc_dir = "/ffb01/monarin/hsd"
 max_events = int(sys.argv[1])
-ds = DataSource('exp=xpptut13:run=1:dir=%s'%(xtc_dir), filter=filter_fn, max_events=max_events)
+ds = DataSource('exp=xpptut13:run=1:dir=%s'%(xtc_dir), filter=filter_fn, max_events=max_events, batch_size=1)
 
 st = MPI.Wtime()
 for run in ds.runs():
     #det = run.Detector('xppcspad')
     for evt in run.events():
         #print("%s %d %f"%(myhost, rank, time.time())) 
+        #print(evt._size)
         pass
 
 en = MPI.Wtime()

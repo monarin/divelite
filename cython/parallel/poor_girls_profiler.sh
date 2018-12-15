@@ -6,6 +6,7 @@ log="${pid}.log"
 #fds=($(grep 'open("/reg/d/psdm/xpp' $log | awk '{print $6}'))
 fds=($(grep 'open("/ffb01/monarin/hsd/smalldata' $log | awk '{print $6}'))
 
+fds=(32 33 34 35 36 37 38 39 40 41 42)
 for i in "${fds[@]}"
 do
     t1=`grep -m1 read\(${i} $log | awk '{print $2}'`
