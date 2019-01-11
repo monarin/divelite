@@ -11,14 +11,25 @@ def filter_fn(evt):
 
 xtc_dir = "/global/cscratch1/sd/monarin/testxtc2/hsd"
 max_events = int(sys.argv[1])
-ds = DataSource('exp=xpptut13:run=1:dir=%s'%(xtc_dir), filter=filter_fn, max_events=max_events)
+ds = DataSource('exp=xpptut13:run=1:dir=%s'%(xtc_dir), filter=filter_fn, max_events=max_events, batch_size=1)
 
 st = MPI.Wtime()
 for run in ds.runs():
     #det = run.Detector('xppcspad')
     for evt in run.events():
+<<<<<<< HEAD
         print("%s %d %f"%(myhost, rank, time.time())) 
         #pass
+=======
+<<<<<<< HEAD
+        #print("%s %d %f"%(myhost, rank, time.time())) 
+        #print(evt._size)
+        pass
+=======
+        print("%s %d %f"%(myhost, rank, time.time())) 
+        #pass
+>>>>>>> some changes from NERSC
+>>>>>>> e069b000972da00703c13312cbac3a9e8022279b
 
 en = MPI.Wtime()
 
