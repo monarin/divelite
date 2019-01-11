@@ -17,19 +17,8 @@ st = MPI.Wtime()
 for run in ds.runs():
     #det = run.Detector('xppcspad')
     for evt in run.events():
-<<<<<<< HEAD
         print("%s %d %f"%(myhost, rank, time.time())) 
         #pass
-=======
-<<<<<<< HEAD
-        #print("%s %d %f"%(myhost, rank, time.time())) 
-        #print(evt._size)
-        pass
-=======
-        print("%s %d %f"%(myhost, rank, time.time())) 
-        #pass
->>>>>>> some changes from NERSC
->>>>>>> e069b000972da00703c13312cbac3a9e8022279b
 
 en = MPI.Wtime()
 
