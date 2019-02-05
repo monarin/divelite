@@ -4,7 +4,7 @@ pid=${1}
 log="${pid}.log"
 
 #fds=($(grep 'open("/reg/d/psdm/xpp' $log | awk '{print $6}'))
-fds=($(grep 'open("/global/cscratch1/sd/monarin/testxtc2/hsd/smalldata/data-' $log | awk '{print $6}'))
+fds=($(grep 'open("/reg/d/psdm/xpp/xpptut15/scratch/mona/xtc2/smalldata/data-' $log | awk '{print $6}'))
 
 for i in "${fds[@]}"
 do
