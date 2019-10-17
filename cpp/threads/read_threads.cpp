@@ -1,3 +1,7 @@
+/* compile and run:
+   g++ -pthread read_threads.cpp -o read_threads
+   ./read_threads
+*/
 #include <iostream>
 #include <iomanip>
 #include <thread>
@@ -57,7 +61,7 @@ int main(int argc, char** argv) {
     for (int i=0; i<nfiles; i++) {
         stringstream ss;
         ss << setw(2) << setfill('0') << i;
-        xtc_file = "/ffb01/monarin/test/smalldata/data-"+ss.str()+".smd.xtc";
+        xtc_file = "/reg/d/psdm/xpp/xpptut15/scratch/mona/xtc2/smalldata/data-r0001-s"+ss.str()+".smd.xtc2";
         int fd = open(xtc_file.c_str(), O_RDONLY);
         fds.push_back(fd);
         
@@ -80,7 +84,7 @@ int main(int argc, char** argv) {
     
     time(&en);
     double seconds = difftime(en, st);
-    cout << "Total Elapsed (s): " << seconds << " Bandwidth (GB/s):" << (2*nfiles)/seconds << endl;
+    cout << "Total Elapsed (s): " << seconds << " Bandwidth (GB/s):" << 14/seconds << endl;
     return 0;
 }
 

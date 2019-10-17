@@ -30,5 +30,5 @@ def consumer(q):
 from threading import Thread
 from queue import Queue
 q = Queue()
-Thread(target=producer, args=(q,10)).start()
+Thread(target=producer, args=(q,100)).start()
 Thread(target=consumer, args=(q,)).start()

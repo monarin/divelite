@@ -11,5 +11,7 @@ sort_col=sys.argv[2]
 
 p = pstats.Stats(restats_file)
 p.strip_dirs().sort_stats(sort_col).print_stats()
-#p.print_callees('__cinit__')
+#p.print_callees('event_manager.py:15(events)')
+
+
 

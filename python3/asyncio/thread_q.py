@@ -63,6 +63,7 @@ def producer(q, n):
 
 def consumer(q):
     while True:
+        print("Trying to get")
         item = q.get_sync()
         if item is None:
             break

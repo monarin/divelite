@@ -4,6 +4,16 @@ from Cython.Build import cythonize
 
 ext_modules = [
         Extension(
+            "multi_tasking",
+            ["multi_tasking.pyx"],
+            extra_compile_args=['-fopenmp'],
+            extra_link_args=['-fopenmp'],
+            )
+        ]
+
+"""
+ext_modules = [
+        Extension(
             "ex_prange",
             ["ex_prange.pyx"],
             extra_compile_args=['-fopenmp'],
@@ -26,8 +36,15 @@ ext_modules = [
             ["smdreader.pyx"],
             extra_compile_args=['-fopenmp'],
             extra_link_args=['-fopenmp'],
+            ),
+        Extension(
+            "multi_tasking",
+            ["multi_tasking.pyx"],
+            extra_compile_args=['-fopenmp'],
+            extra_link_args=['-fopenmp'],
             )
         ]
+"""
 
 setup(
         name='example-parallel',
