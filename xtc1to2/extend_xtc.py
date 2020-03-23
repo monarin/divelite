@@ -1,7 +1,7 @@
 import dgramCreate as dc
 from psana import DataSource
-#import numpy as np
-#import os
+import numpy as np
+import os
 
 
 def collect_dgrams(n_dgrams, seed_file):
@@ -17,6 +17,7 @@ def collect_dgrams(n_dgrams, seed_file):
         }
         dgrams.append(my_data)
         print(f'  saving {i} ts={evt.timestamp}')
+        if i == n_dgrams - 1: break
     return dgrams
 
 
@@ -54,7 +55,7 @@ def extend_xtc(tmp_path, seed_dgrams, n_total_dgrams):
 
     i = 0
     cn_seed_dgrams = 0
-    while cn_dgrams < n_total_dgrams:
+    while i < n_total_dgrams:
         if cn_seed_dgrams == len(seed_dgrams):
             cn_seed_dgrams = 0
 
@@ -73,6 +74,9 @@ def extend_xtc(tmp_path, seed_dgrams, n_total_dgrams):
             transitionid = 12 # L1Accept
         xtc_bytes = cydgram.get(timestamp,transitionid)
         f.write(xtc_bytes)
+        
+        cn_seed_dgrams += 1
+        i += 1
 
     f.close()
 
@@ -87,7 +91,7 @@ def extend_xtc(tmp_path, seed_dgrams, n_total_dgrams):
 
 if __name__ == "__main__":
     import pathlib
-    xtc_file = "/gpfs/alpine/proj-shared/chm137/data/LD91/old_data.xtc2"
-    print(xtc_file)
-    #seed_dgrams = collect_dgrams(10, xtc_file)
-    #extend_xtc(pathlib.Path('.'), seed_dgrams, 100)
+    #xtc_file = "/gpfs/alpine/proj-shared/chm137/data/LD91/old_data.xtc2"
+    xtc_file = "/reg/d/psdm/xpp/xpptut15/scratch/mona/old_data.xtc2"
+    seed_dgrams = collect_dgrams(10, xtc_file)
+    extend_xtc(pathlib.Path('.'), seed_dgrams, 100)
