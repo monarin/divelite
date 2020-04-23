@@ -1,0 +1,15 @@
+{% set version = "4.0.0" %}
+{% set major = version.rpartition('.')[0] %}
+{% set sha1 = "fee1d0287abfb150bae16957de342752c9bdd4e8" %}
+
+package:
+  name: openmpi
+  version: {{ version }}
+
+source:
+  fn: openmpi-{{ version }}.tar.bz2
+  url: https://download.open-mpi.org/release/open-mpi/v{{ major }}/openmpi-{{ version }}.tar.bz2
+  sha1: {{ sha1 }}
+
+build:
+  number: 3
