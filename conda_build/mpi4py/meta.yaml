@@ -10,12 +10,14 @@ source:
 
 build: 
   # number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
-  number: 33
+  number: 34
 requirements:
   build:
     - python
     - cython >=0.22
+    - openmpi >=4.0.0
 
   run:
     - python
+    - openmpi >=4.0.0
 
