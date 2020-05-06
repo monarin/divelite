@@ -1,6 +1,6 @@
 package:
-  name: packaging_tutorial
-  version: "0.0.2"
+  name: pkg_rhel6
+  version: "0.0.1"
 
 source:
   git_rev: 
@@ -8,13 +8,11 @@ source:
 
 requirements:
   build:
-    - python 
+    - python
     - setuptools
-    - pkg {{ pkg }}
 
   run:
     - python
-    - pkg
 
 test:
   imports: 
