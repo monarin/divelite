@@ -4,8 +4,8 @@ from Cython.Build import cythonize
 
 ext_modules = [
         Extension(
-            "multi_tasking",
-            ["multi_tasking.pyx"],
+            "ex_prange",
+            ["ex_prange.pyx"],
             extra_compile_args=['-fopenmp'],
             extra_link_args=['-fopenmp'],
             )
