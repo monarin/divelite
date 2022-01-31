@@ -3,7 +3,7 @@ READ THIS BEFORE USE!
  This won't work out of the box since it writes ShapesData.hh private
  variable. 
  1. You need to make NameInfo _NameInfo; public (comment out
- line 261).
+ line 261 ShapesData.hh).
  2. Add/change following to CMakeList
 
 add_executable(configmodifier
