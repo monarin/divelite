@@ -2,7 +2,7 @@
 from mypybuffer import MyPyBuffer
 import os
 
-xtc_file = '/cds/home/m/monarin/lcls2/psana/psana/tests/test_data/dgrampy-test.xtc2'
+xtc_file = '/cds/home/m/monarin/lcls2/psana/psana/tests/test_data/dgramedit-test.xtc2'
 fd = os.open(xtc_file, os.O_RDONLY)
 size = 2643928     # size of dgrampy-test.xtc2
 view = bytearray(os.read(fd, size))
