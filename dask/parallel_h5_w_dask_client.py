@@ -22,7 +22,7 @@ cluster = SLURMCluster(
 
     # Resources per SLURM job (per node, the way SLURM is configured on Roma)
     # processes=16 runs 16 Dask workers in a job, so each worker has 1 core & 32 GB RAM.
-    processes=4, cores=4, memory='512GB',
+    processes=10, cores=10, memory='512GB',
 )
 cluster.scale(jobs=1)
 cluster.job_script()
@@ -31,12 +31,14 @@ print(f'RANK:{rank} {client=}')
 
 
 t0 = time.monotonic()
+ts_chunks = (1000000,)
+calib_chunks = (1000000, 6)
 in_f = h5py.File('/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/mysmallh5.h5', 'r')
-ts = da.from_array(in_f['timestamp'], chunks='auto')
-calib = da.from_array(in_f['calib'], chunks='auto')
+ts = da.from_array(in_f['timestamp'], chunks=ts_chunks)
+calib = da.from_array(in_f['calib'], chunks=calib_chunks)
 t1 = time.monotonic()
 print(f'RANK:{rank} reading took {t1-t0:.2f}s.')
-inds = ts.argtopk(-ts.shape[0])
+inds = ts.argtopk(-ts.shape[0]).compute()
 t2 = time.monotonic()
 print(f'RANK:{rank} sorting took {t2-t1:.2f}s.')
 sorted_ts = ts[inds]
@@ -46,11 +48,14 @@ print(f'RANK:{rank} slicing took {t3-t2:.2f}s.')
 
 comm.Barrier()
 it = MPI.Wtime()
-f = h5py.File('/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/parallel_test.hdf5', 'w', driver='mpio', comm=MPI.COMM_WORLD)
-#f = h5py.File('/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/parallel_test.hdf5', 'w')
+#f = h5py.File('/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/parallel_test.hdf5', 'w', driver='mpio', comm=MPI.COMM_WORLD)
+f = h5py.File('/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/parallel_test.hdf5', 'w')
 
-f.create_dataset('timestamp', data=sorted_ts)
-f.create_dataset('calib', data=sorted_calib)
+print(f'RANK:{rank} start writing')
+f.create_dataset('timestamp', data=sorted_ts.compute())
+print(f'RANK:{rank} done writing timestamp')
+f.create_dataset('calib', data=sorted_calib.compute())
+print(f'RANK:{rank} done writing calib')
 
 f.close()
 
