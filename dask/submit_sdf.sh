@@ -1,18 +1,18 @@
 #!/bin/bash
 #SBATCH --partition=milano
 #SBATCH --account=lcls:data
-#SBATCH --job-name=test-psana2-live
+#SBATCH --job-name=test-psana2-ts-sort
 #SBATCH --output=output-%j.txt
 #SBATCH --error=output-%j.txt
-#SBATCH --nodes=1
+#SBATCH --nodes=2
 #SBATCH --exclusive
-#SBATCH --time=1:00:00
+#SBATCH --time=00:30:00
 
 
 t_start=`date +%s`
 
 
-mpirun -np 10 python gen_h5.py
+mpirun -np 1 python parallel_h5_w_dask_dataframe.py
 
 
 t_end=`date +%s`

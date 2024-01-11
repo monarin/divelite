@@ -1,7 +1,6 @@
 # do this before running visualize on s3df
 # export PYTHONPATH=/sdf/home/m/monarin/sw/lib/python3.9/site-packages:$PYTHONPATH
 from mpi4py import MPI
-import sys
 import h5py
 import numpy as np
 import dask
@@ -58,37 +57,37 @@ print(f'RANK:{rank} {ts_chunks=} {n_procs=} sorting took {t2-t1:.2f}s.')
 
 # Load indices
 inds = dd_ts.index.values
-inds_arr = np.asarray(inds.compute(), dtype=np.int64)
 t2a = time.monotonic()
-print(f'RANK:{rank} {inds_arr.size=} ({inds_arr.size*inds_arr.itemsize/1e6:.2f}MB) compute indices took {t2a-t2:.2f}s.')
+print(f'RANK:{rank} compute indices took {t2a-t2:.2f}s.')
 
+
+# Slicing
+slicing_flag = True
+if slicing_flag:
+    dask.config.set(**{'array.slicing.split_large_chunks': True})
+    sorted_ts = da_ts[inds]
+    sorted_calib = da_calib[inds]
+    #sorted_calib.visualize(filename='slicing.svg')
+t3 = time.monotonic()
+#print(f'RANK:{rank} {sorted_calib.size=} ({sorted_calib.size*sorted_calib.itemsize/1e9:.2f}GB) {calib_chunks=} {n_procs=} slicing took {t3-t2:.2f}s.')
 
 comm.Barrier()
 it = MPI.Wtime()
-# Spawn mpiworkers
-maxprocs = 200
-sub_comm = MPI.COMM_SELF.Spawn(sys.executable, args=['parallel_h5_write.py'], maxprocs=maxprocs)
-common_comm=sub_comm.Merge(False)
 
+write_flag = True
+if write_flag:
+    print(f'RANK:{rank} start writing')
+    #f = h5py.File('/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/parallel_test.hdf5', 'w', driver='mpio', comm=MPI.COMM_WORLD)
+    f = h5py.File('/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/parallel_test.hdf5', 'w')
 
-# Send data
-n_samples = inds_arr.shape[0]
-batch_size = 10000000
-rankreq = np.empty(1, dtype='i')
-for i in range(int(np.ceil(n_samples/batch_size))):
-    st = i * batch_size
-    en = st + batch_size
-    if en > n_samples: en = n_samples
-    common_comm.Recv(rankreq, source=MPI.ANY_SOURCE)
-    common_comm.Send(inds_arr[st:en], tag=i, dest=rankreq[0])
+    f.create_dataset('timestamp', data=sorted_ts.compute())
+    print(f'RANK:{rank} done writing timestamp')
+    f.create_dataset('calib', data=sorted_calib.compute())
+    print(f'RANK:{rank} done writing calib')
 
-
-# Kill clients
-for i in range(common_comm.Get_size()-1):
-    common_comm.Recv(rankreq, source=MPI.ANY_SOURCE)
-    common_comm.Send(bytearray(), dest=rankreq[0])
-
+    f.close()
 
 comm.Barrier()
 en = MPI.Wtime()
-print (f"ALL DONE batch_size:{batch_size} maxprocs:{maxprocs} Sort:{it-st:.2f}s. Write:{en-it:.2f}s. Total:{en-st:.2f}s.")
+if rank == 0:
+    print(f'Total Time: {en-st:.2f}s. Load/Sort:{it-st:.2f}s. Writing:{en-it:.2f}s.')
