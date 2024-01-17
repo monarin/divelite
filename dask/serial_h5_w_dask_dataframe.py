@@ -23,7 +23,7 @@ n_procs = 100
 cluster = SLURMCluster(
     queue=partition,
     account="lcls:data",
-    local_directory='/sdf/home/m/monarin/tmp/',  # Local disk space for workers to use
+    local_directory='/sdf/data/lcls/drpsrcf/ffb/users/monarin/tmp/',  # Local disk space for workers to use
 
     # Resources per SLURM job (per node, the way SLURM is configured on Roma)
     # processes=16 runs 16 Dask workers in a job, so each worker has 1 core & 32 GB RAM.
@@ -49,14 +49,15 @@ print(f'RANK:{rank} reading took {t1-t0:.2f}s.')
 
 
 # Sorting 
-dd_ts.sort_values('timestamp')
+# WARNING: not an in-place operation (needs to assign it to another variable)
+dd_ts_sorted = dd_ts.sort_values('timestamp')
 #ts.visualize(filename='sort.svg')
 t2 = time.monotonic()
 print(f'RANK:{rank} {ts_chunks=} {n_procs=} sorting took {t2-t1:.2f}s.')
 
 
 # Load indices
-inds = dd_ts.index.values
+inds = dd_ts_sorted.index.values
 t2a = time.monotonic()
 print(f'RANK:{rank} compute indices took {t2a-t2:.2f}s.')
 
@@ -82,8 +83,8 @@ if write_flag:
 
     f.create_dataset('timestamp', data=sorted_ts.compute())
     print(f'RANK:{rank} done writing timestamp')
-    f.create_dataset('calib', data=sorted_calib.compute())
-    print(f'RANK:{rank} done writing calib')
+    #f.create_dataset('calib', data=sorted_calib.compute())
+    #print(f'RANK:{rank} done writing calib')
 
     f.close()
 
