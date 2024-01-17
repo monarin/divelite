@@ -31,11 +31,9 @@ print(f'RANK:{rank} {client=}')
 
 
 t0 = time.monotonic()
-ts_chunks = (1000000,)
-calib_chunks = (1000000, 6)
 in_f = h5py.File('/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/mysmallh5.h5', 'r')
-ts = da.from_array(in_f['timestamp'], chunks=ts_chunks)
-calib = da.from_array(in_f['calib'], chunks=calib_chunks)
+ts = da.from_array(in_f['timestamp'], chunks='auto')
+calib = da.from_array(in_f['calib'], chunks='auto')
 t1 = time.monotonic()
 print(f'RANK:{rank} reading took {t1-t0:.2f}s.')
 inds = ts.argtopk(-ts.shape[0]).compute()
