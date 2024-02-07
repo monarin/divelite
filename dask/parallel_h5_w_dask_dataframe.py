@@ -8,16 +8,11 @@ import dask
 import dask.array as da
 import dask.dataframe as dd
 import time
-
-
-comm = MPI.COMM_WORLD
-rank = MPI.COMM_WORLD.rank  
-comm.Barrier()
-st = MPI.Wtime()
+print(f'MAIN: tart')
 
 
 # Setup cluster for dask
-tm1 = time.monotonic()
+st = time.time()
 from dask_jobqueue import SLURMCluster
 from dask.distributed import Client, progress
 partition = 'milano'  # For LCLS II staff
@@ -36,37 +31,44 @@ cluster = SLURMCluster(
 cluster.scale(jobs=1)
 cluster.job_script()
 client = Client(cluster)
-t0 = time.monotonic()
-print(f'RANK:{rank} {client=} setup cluster done in {t0-tm1:.2f}s.')
+t0 = time.time()
+print(f'MAIN: {client=} setup cluster done in {t0-st:.2f}s.')
 
 # Read data
 ts_chunks = (10000000,)
 in_f = h5py.File('/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/mylargeh5.h5', 'r')
 da_ts = da.from_array(in_f['timestamp'], chunks=ts_chunks)
 dd_ts = dd.from_array(da_ts, columns=['timestamp'])
-t1 = time.monotonic()
-print(f'RANK:{rank} reading took {t1-t0:.2f}s.')
+t1 = time.time()
+print(f'MAIN: reading took {t1-t0:.2f}s.')
 
 
 # Sorting 
 # WARNING sort_values is not in-place (need to assign the result to another variable)
 dd_ts_sorted = dd_ts.sort_values('timestamp')
 #ts.visualize(filename='sort.svg')
-t2 = time.monotonic()
-print(f'RANK:{rank} {ts_chunks=} {n_procs=} sorting took {t2-t1:.2f}s.')
+t2 = time.time()
+print(f'MAIN: {ts_chunks=} {n_procs=} sorting took {t2-t1:.2f}s.')
 
 
 # Load indices
 inds = dd_ts_sorted.index.values
 inds_arr = np.asarray(inds.compute(), dtype=np.int64)
-t2a = time.monotonic()
-print(f'RANK:{rank} {inds_arr.size=} ({inds_arr.size*inds_arr.itemsize/1e6:.2f}MB) compute indices took {t2a-t2:.2f}s.')
+t2a = time.time()
+print(f'MAIN: {inds_arr.size=} ({inds_arr.size*inds_arr.itemsize/1e6:.2f}MB) compute indices took {t2a-t2:.2f}s.')
 
 
-comm.Barrier()
-it = MPI.Wtime()
+## Get sorted indices
+#sorted_ts = da_ts[inds_arr[:10]].compute()
+#t2b = time.time()
+#print(f'RANK:{rank} get sorted ts took {t2b-t2:.2f}s.')
+#
+#for i in range(10):
+#    print(i, inds_arr[i], sorted_ts[i])
+
+
 # Spawn mpiworkers
-maxprocs = 200
+maxprocs = 10
 sub_comm = MPI.COMM_SELF.Spawn(sys.executable, args=['parallel_h5_write.py'], maxprocs=maxprocs)
 common_comm=sub_comm.Merge(False)
 
@@ -82,6 +84,7 @@ for i in range(n_files):
     if en > n_samples: en = n_samples
     common_comm.Recv(rankreq, source=MPI.ANY_SOURCE)
     common_comm.Send(inds_arr[st:en], tag=i, dest=rankreq[0])
+    print(f'MAIN: Sent {st}:{en} part:{i} to writer {rankreq[0]}')
 
 
 # Kill clients
@@ -90,6 +93,6 @@ for i in range(common_comm.Get_size()-1):
     common_comm.Send(bytearray(), dest=rankreq[0])
 
 
-comm.Barrier()
-en = MPI.Wtime()
-print (f"ALL DONE batch_size:{batch_size} maxprocs:{maxprocs} Sort:{it-st:.2f}s. Write:{en-it:.2f}s. Total:{en-st:.2f}s.")
+en = time.time() 
+print (f"MAIN: All Done batch_size:{batch_size} maxprocs:{maxprocs} Write took:{en-t2a:.2f}s.")
+#common_comm.Abort(1)

@@ -4,7 +4,7 @@
 #SBATCH --job-name=test-psana2-ts-sort
 #SBATCH --output=output-%j.txt
 #SBATCH --error=output-%j.txt
-#SBATCH --nodes=2
+#SBATCH --nodes=1
 #SBATCH --exclusive
 #SBATCH --time=00:30:00
 
