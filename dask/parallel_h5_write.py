@@ -59,19 +59,26 @@ while True:
     tag = info.Get_tag()
     print (f"WRITER RANK:{common_comm.Get_rank()} received {data.shape=} {tag=}")
 
-    ori_indices = np.argsort(data)
-    sorted_indices = data[ori_indices]
+    # Get the ordered indices for faster access
+    i_data = np.argsort(data)
+    access_indices = data[i_data]
 
-    ##out_f = h5py.File(f'/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/output/result_part{tag}.h5', 'w') 
+    out_f = h5py.File(f'/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/output/result_part{tag}.h5', 'w') 
     for key in in_f.keys():
         if key != 'timestamp': continue
         t0 = time.monotonic()
-        in_arr = da_dict[key][sorted_indices].compute()[ori_indices]
-    #    in_arr = in_f[key][sorted_indices][ori_indices]
-    #    #out_f.create_dataset(key, data=in_f[key][sorted_indices][ori_indices])
+        # Dask slicing with ordered indices
+        access_arr = da_dict[key][access_indices].compute()
+        # Reorder the slice back to the original order
+        in_arr = access_arr[np.argsort(i_data)]
+        if tag == 0:
+            print(f'INDICES {data[:10]} i_data: {i_data[:10]} access_indices: {access_indices[:10]} access_arr: {access_arr[:10]} in_arr: {in_arr[:10]}')
         t1 = time.monotonic()
-        print(f'WRITER RANK:{common_comm.Get_rank()} {key=} writing:{t1-t0:.2f}s.')
-    ##out_f.close()
+        print(f'WRITER RANK:{common_comm.Get_rank()} {key=} dask slicing:{t1-t0:.2f}s.')
+        out_f.create_dataset(key, data=in_arr)
+        t2 = time.monotonic()
+        print(f'WRITER RANK:{common_comm.Get_rank()} {key=} writing:{t2-t1:.2f}s.')
+    out_f.close()
 
 
 in_f.close()

@@ -95,4 +95,9 @@ for i in range(common_comm.Get_size()-1):
 
 en = time.time() 
 print (f"MAIN: All Done batch_size:{batch_size} maxprocs:{maxprocs} Write took:{en-t2a:.2f}s.")
+
+
+# Check the first 10 timestamps
+chk_f = h5py.File(f'/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/output/result_part0.h5', 'r') 
+print(f"MAIN: {chk_f['timestamp'][:10]}")
 #common_comm.Abort(1)
