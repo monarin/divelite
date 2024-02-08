@@ -8,7 +8,7 @@ import dask
 import dask.array as da
 import dask.dataframe as dd
 import time
-print(f'MAIN: tart')
+print(f'MAIN: start')
 
 
 # Setup cluster for dask
@@ -100,4 +100,5 @@ print (f"MAIN: All Done batch_size:{batch_size} maxprocs:{maxprocs} Write took:{
 # Check the first 10 timestamps
 chk_f = h5py.File(f'/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/output/result_part0.h5', 'r') 
 print(f"MAIN: {chk_f['timestamp'][:10]}")
+chk_f.close()
 #common_comm.Abort(1)

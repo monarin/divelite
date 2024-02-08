@@ -65,14 +65,11 @@ while True:
 
     out_f = h5py.File(f'/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/output/result_part{tag}.h5', 'w') 
     for key in in_f.keys():
-        if key != 'timestamp': continue
         t0 = time.monotonic()
         # Dask slicing with ordered indices
         access_arr = da_dict[key][access_indices].compute()
         # Reorder the slice back to the original order
         in_arr = access_arr[np.argsort(i_data)]
-        if tag == 0:
-            print(f'INDICES {data[:10]} i_data: {i_data[:10]} access_indices: {access_indices[:10]} access_arr: {access_arr[:10]} in_arr: {in_arr[:10]}')
         t1 = time.monotonic()
         print(f'WRITER RANK:{common_comm.Get_rank()} {key=} dask slicing:{t1-t0:.2f}s.')
         out_f.create_dataset(key, data=in_arr)
