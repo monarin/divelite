@@ -6,13 +6,13 @@
 #SBATCH --error=output-%j.txt
 #SBATCH --nodes=1
 #SBATCH --exclusive
-#SBATCH --time=00:30:00
+#SBATCH --time=00:10:00
 
 
 t_start=`date +%s`
 
 
-mpirun -np 1 python parallel_h5_w_dask_dataframe.py
+python -u parallel_h5_w_dask_dataframe.py
 
 
 t_end=`date +%s`

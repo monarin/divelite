@@ -58,17 +58,8 @@ t2a = time.time()
 print(f'MAIN: {inds_arr.size=} ({inds_arr.size*inds_arr.itemsize/1e6:.2f}MB) compute indices took {t2a-t2:.2f}s.')
 
 
-## Get sorted indices
-#sorted_ts = da_ts[inds_arr[:10]].compute()
-#t2b = time.time()
-#print(f'RANK:{rank} get sorted ts took {t2b-t2:.2f}s.')
-#
-#for i in range(10):
-#    print(i, inds_arr[i], sorted_ts[i])
-
-
 # Spawn mpiworkers
-maxprocs = 10
+maxprocs = 15
 sub_comm = MPI.COMM_SELF.Spawn(sys.executable, args=['parallel_h5_write.py'], maxprocs=maxprocs)
 common_comm=sub_comm.Merge(False)
 
