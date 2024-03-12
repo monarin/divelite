@@ -60,7 +60,7 @@ print(f'MAIN: {inds_arr.size=} ({inds_arr.size*inds_arr.itemsize/1e6:.2f}MB) com
 
 # Spawn mpiworkers
 maxprocs = 15
-sub_comm = MPI.COMM_SELF.Spawn(sys.executable, args=['parallel_h5_write.py'], maxprocs=maxprocs)
+sub_comm = MPI.COMM_SELF.Spawn(sys.executable, args=['parallel_h5_write.py'], maxprocs=maxprocs,)
 common_comm=sub_comm.Merge(False)
 
 
