@@ -34,4 +34,7 @@ Install the prerequisites and the downloaded rpm (on psslurm-drp):
 sudo yum install http-parser-devel json-c-devel libjwt-devel libyaml-devel
 sudo yum install slurm-slurmrestd-20.11.9-1.el7.x86_64.rpm
 ```
+Useful links:
+https://kb.brightcomputing.com/knowledge-base/installing-and-operating-slurmrestd/#setting-up-jwt-authentication
+
 
