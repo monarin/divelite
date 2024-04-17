@@ -37,4 +37,17 @@ sudo yum install slurm-slurmrestd-20.11.9-1.el7.x86_64.rpm
 Useful links:
 https://kb.brightcomputing.com/knowledge-base/installing-and-operating-slurmrestd/#setting-up-jwt-authentication
 
+### configless setup
+On control node (ex. psslurm-drp), add the following line to /etc/slurm/slurm.conf and restart the slurmctld.
+```
+SlurmctldParameters=enable_configless
+```
+On client nodes, restart slurmd with --conf-server option:
+```
+slurmd --conf-server psslurm-drp:6817
+```
+Note that 6817 is the default port and can be omitted if left unchange in slurm.conf.  
+IMPORTANT: You must remove $SLURM_CONF environment variable on the client nodes. This takes priority over --conf-server and can
+cause unexpected behaviours.
+
 
