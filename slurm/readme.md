@@ -1,7 +1,12 @@
 ## Note for SLURM
 
-### slurmctld 
-The central management daemon of Slurm. For drpq test partition, this is runninng on psslurm-drp. 
+### slurmctld and slurmd
+Managing slurm control and client daemons (slurmctld for drpq runs on psslurm-drp). 
+#### Use systemctl
+```
+sudo systemctl [start/stop/restart] slurm[ctld/d]
+```
+#### Use kill
 To stop, locate pid and kill it.
 ```
 pgrep slurmctld
@@ -39,12 +44,13 @@ cause unexpected behaviours.
 ### Feature
 To add feature to a node, update Nodes description section in slurm.conf file 
 ```
-NodeName=drp-srcf-cmp031 RealMemory=128000 Sockets=1 CoresPerSocket=64 ThreadsPerCore=1 CoreSpecCount=3 AvailableFeatures=timing,teb,control
+NodeName=drp-srcf-cmp031 RealMemory=128000 Sockets=1 CoresPerSocket=64 ThreadsPerCore=1 CoreSpecCount=3 Feature=timing,teb,control
 ```
 or run use scontrol:
 ```
 sudo scontrol update NodeName=drp-srcf-cmp035 AvailableFeatures=timing,teb,control
 ```
+A good note on how to setup and request features https://hpc.nmsu.edu/discovery/slurm/features/.
 ### slurmrestd
 Installation:
 Check version of slurm (the version no. for the rpm must match)
