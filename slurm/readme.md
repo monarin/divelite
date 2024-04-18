@@ -16,7 +16,35 @@ or start in background then tail the log file:
 sudo slurmctld
 sudo tail -f /var/log/slurm/slurmctld.log 
 ```
-
+### configless setup
+On control node (ex. psslurm-drp), add the following line to /etc/slurm/slurm.conf and restart the slurmctld.
+```
+SlurmctldParameters=enable_configless
+```
+On client nodes, add following option to /etc/sysconfig/slurmd
+```
+SLURMD_OPTIONS="--conf-server psslurm-drp"
+```
+Restart slurmd
+```
+systemctl restart slurmd
+```
+The following also works:
+```
+slurmd --conf-server psslurm-drp:6817
+```
+Note that 6817 is the default port and can be omitted if left unchange in slurm.conf.  
+IMPORTANT: You must remove $SLURM_CONF environment variable on the client nodes. This takes priority over --conf-server and can
+cause unexpected behaviours.
+### Feature
+To add feature to a node, update Nodes description section in slurm.conf file 
+```
+NodeName=drp-srcf-cmp031 RealMemory=128000 Sockets=1 CoresPerSocket=64 ThreadsPerCore=1 CoreSpecCount=3 AvailableFeatures=timing,teb,control
+```
+or run use scontrol:
+```
+sudo scontrol update NodeName=drp-srcf-cmp035 AvailableFeatures=timing,teb,control
+```
 ### slurmrestd
 Installation:
 Check version of slurm (the version no. for the rpm must match)
@@ -37,17 +65,6 @@ sudo yum install slurm-slurmrestd-20.11.9-1.el7.x86_64.rpm
 Useful links:
 https://kb.brightcomputing.com/knowledge-base/installing-and-operating-slurmrestd/#setting-up-jwt-authentication
 
-### configless setup
-On control node (ex. psslurm-drp), add the following line to /etc/slurm/slurm.conf and restart the slurmctld.
-```
-SlurmctldParameters=enable_configless
-```
-On client nodes, restart slurmd with --conf-server option:
-```
-slurmd --conf-server psslurm-drp:6817
-```
-Note that 6817 is the default port and can be omitted if left unchange in slurm.conf.  
-IMPORTANT: You must remove $SLURM_CONF environment variable on the client nodes. This takes priority over --conf-server and can
-cause unexpected behaviours.
+
 
 
