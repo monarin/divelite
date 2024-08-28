@@ -56,6 +56,27 @@ You can modify /etc/slurm/slurm.conf and ask the slurmd clients to fetch the upd
 ```
 sudo scontrol reconfigure
 ```
+### CPU Mask
+To allow some cpus to be excluded from user jobs, 
+1. In /etc/slurm/cgroup.conf, add this
+```
+ConstrainCores=yes
+```
+2. In /etc/slurm/slurm.conf, make sure the following parameters have these values:
+```
+ProctrackType=proctrack/cgroup
+TaskPlugin=task/cgroup,task/affinity
+JobAcctGatherType=jobacct_gather/cgroup
+```
+Note that the task/affinity option is added per bug reported. 
+3. In node configuration section in /etc/slurm/slurm.conf, add CpuSpecList=0-3 (example, of masking core 0-3). Make sure to remove CoreSpecCount since these two paramters conflict with each other. 
+```
+NodeName=drp-srcf-cmp005 RealMemory=128000 Sockets=1 CoresPerSocket=64 ThreadsPerCore=1 CpuSpecList=0-3
+```
+4. As a side note, set OverSubscribe=FORCE:1 or OverSubscribe=NO to not allow oversubscription on the physical cores (FORCE:1 is allowing only due to preemption).
+```
+sudo scontrol reconfigure
+```
 ### slurmrestd
 Installation:
 Check version of slurm (the version no. for the rpm must match)
