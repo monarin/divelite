@@ -51,6 +51,11 @@ or run use scontrol:
 sudo scontrol update NodeName=drp-srcf-cmp035 AvailableFeatures=timing,teb,control
 ```
 A good note on how to setup and request features https://hpc.nmsu.edu/discovery/slurm/features/.
+### Update config w/o restart
+You can modify /etc/slurm/slurm.conf and ask the slurmd clients to fetch the update by:
+```
+sudo scontrol reconfigure
+```
 ### slurmrestd
 Installation:
 Check version of slurm (the version no. for the rpm must match)
