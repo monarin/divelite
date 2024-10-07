@@ -10,10 +10,11 @@ rank = comm.Get_rank()
 comm.Barrier()
 st = MPI.Wtime()
 import dask.array as da
+import tables as tb
 
 
 starting_ts = 4295030300
-n_total_images = 1000000000
+n_total_images = 100000
 img_width = 10 
 calib_shape = (n_total_images, img_width)
 
@@ -38,13 +39,21 @@ print(f'RANK:{rank} Create calib {calib.shape} done in {t2-t1:.2f}s.', flush=Tru
 
 comm.Barrier()
 it = MPI.Wtime()
-#f = h5py.File('/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/mylargeh5.h5', 'w', driver='mpio', comm=MPI.COMM_WORLD)
-f = h5py.File('/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/mylargeh5.h5', 'w')
+output_fname = '/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/myrealh5.h5'
+#f = h5py.File(output_fname, 'w', driver='mpio', comm=MPI.COMM_WORLD)
+f = h5py.File(output_fname, 'w')
 
 f.create_dataset('timestamp', data=timestamps, chunks=True)
 print(f'RANK:{rank} done writing timestamp')
 f.create_dataset('calib', data=calib, chunks=True)
 print(f'RANK:{rank} done writing calib')
+
+# Creates groups to mimic 'real' hdf5
+grp1 = f.create_group("/grp1/subgrp1")
+print(f'create group: {grp1.name}')
+grp1['unaligned_data'] = np.ones((100, 20))
+grp1['var_len_str'] = 'hello'
+grp1['calib'] = calib
 
 f.close()
 
@@ -52,7 +61,7 @@ comm.Barrier()
 en = MPI.Wtime()
 if rank == 0:
     print(f'Total Time: {en-st:.2f}s Create:{it-st:.2f}s. Writing:{en-it:.2f}s.')
-    f = h5py.File('/sdf/data/lcls/drpsrcf/ffb/users/monarin/h5/mylargeh5.h5', 'r')
-    for key in f.keys():
-        print(key, f[key].shape)
-    f.close()
+    h5file = tb.open_file(output_fname,'r')
+    for array in h5file.walk_nodes('/', 'Array'):
+        print(array, type(array))
+    tb.close()
